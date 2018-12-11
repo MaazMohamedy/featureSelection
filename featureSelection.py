@@ -1,11 +1,16 @@
-import pandas as pd
-from random import randint
-import heapq
 import numpy
+import cProfile, pstats, io
+import time
+import profile
+import csv
 
-data = pd.read_csv('CS170_SMALLtestdata__110.txt',header=None, sep="  ", engine='python')
+pr = cProfile.Profile()
+pr.enable()
 
 def main():
+
+	# print(5 ** 5)
+	# return
 
 	print("Welcome to Maaz Mohamedy's Feature Selection Algorithm.")
 	file  = 1#input("Type in the name of the file to test (1 for CS170_SMALLtestdata__60, "
@@ -13,26 +18,36 @@ def main():
 
 	# data = pd.read_csv('CS170_SMALLtestdata__110.txt',header=None, sep="  ", engine='python')
 
-	if file == "2":
-		data = pd.read_csv('CS170_LARGEtestdata__96.txt',header=None, sep="  ", engine='python')
-
-	# print(data.head())
+	# if file == "2":
+	# 	data = pd.read_csv('CS170_LARGEtestdata__96.txt',header=None, sep="  ", engine='python')
 
 	algo ="1"# input("Type the number of the algorithm you want to run.\n\n"
 		#+ "\t1) Forward Selection\n"
 		#+ "\t2) Backward Elimination\n"
 		#+ "\t3) Maaz's Special Algorithm\n\n\n")
+	
+	data = numpy.loadtxt(open("CS170_SMALLtestdata__60.txt"))
+	data = data.tolist()
 
-	# if (algo == "1"): forwardSelection(data)
-	if (algo == "1"): forwardSelection()
+	# for i in range(1,11):
+	# 	if ( not (i==6) and not (i==9 )):
+	# 		arr = [6,9]
+	# 		arr.append(i)
+	# 		res = leave_one_out_cross_validation(arr)#data,arr)
+	# 		print(res)
+
+	if (algo == "1"): forwardSelection(data)
+
+	pr.disable()
+	pr.print_stats()#end def main
 
 
-def forwardSelection():
+def forwardSelection(data):
 	print()
 	current_set_of_features = []
 	current_set_of_features.append([])
 
-	numFeatures = len(data.columns)
+	numFeatures = len(data[0])#len(data.columns)
 	mostAccurate = 0
 	mostAccurateSet = []
 
@@ -47,7 +62,8 @@ def forwardSelection():
 			if j not in current_set_of_features[last]:
 				testSet = current_set_of_features[last][:]
 				testSet.append(j)
-				accuracy = leave_one_out_cross_validation(testSet)
+
+				accuracy = leave_one_out_cross_validation(data, testSet)
 
 				print("\tUsing feature(s) {", end = "") 
 				print(*(current_set_of_features[last]), sep = ",", end = "" )
@@ -75,45 +91,46 @@ def forwardSelection():
 	print("mostAccurate " + str(mostAccurate))
 	print("mostAccurateSet " + str(mostAccurateSet))
 
-def leave_one_out_cross_validation(current_set_of_features):
-	allNeighbors = []
-	classOne = 0
-	classTwo = 0
-	classification = -1
+def leave_one_out_cross_validation(data, testSet):
+	# allNeighbors = []
+	minDistance = float('inf')
+	nearest = -1
 
-	numInstances = len(data.index)
+	numInstances = len(data)#len(data.index)
 	numCorrectClassifications = 0
 
 	for i in range(0, numInstances):
-		allNeighbors.clear()
+		# allNeighbors.clear()
+		nearest = -1
+		minDistance = float('inf')
 		for j in range(0, numInstances):
 			if not(i == j):
 				# calculateDistance between i and j using curr set of features
 				# throw 'j' into pq -- (distance, class)
-				distance = calculateDistance(i,j,current_set_of_features)
-				heapq.heappush(allNeighbors, (distance, data.loc[j,0]) )
+				distance = 0
+				for k in range(0, len(testSet)):
+					a = data[i][testSet[k]]
+					b = data[j][testSet[k]]
+					x = a-b
+					distance += x*x
+					# distance += calculateDistance(data,testSet,i,j,k)
+					# distance = distance + pow((data[i][testSet[k]]) - ((data[j][testSet[k]])), 2)
 
-		if data.loc[i,0] == heapq.heappop(allNeighbors)[1]:
+				if (distance <= minDistance):
+					nearest = data[j][0]#data.iat[j,0]
+					minDistance = distance
+
+				# heapq.heappush(allNeighbors, (distance, data[j][0]))#data.iat[j,0]) )
+
+
+		# if data[i][0] == heapq.heappop(allNeighbors)[1]: numCorrectClassifications += 1
+
+		if data[i][0] == nearest:
 			numCorrectClassifications += 1
 
-	# print("numCorrectClassifications" +str(numCorrectClassifications))
-	# print("numInstances" +str(numInstances))
 	return (numCorrectClassifications/numInstances)
 
 
-def calculateDistance(i,j,features):
-	iVec = []
-	jVec = []
-
-	for k in range(0, len(features)):
-		iVec.append(data.loc[i,features[k]])
-		jVec.append(data.loc[j,features[k]])
-
-	a = numpy.array(iVec)
-	b = numpy.array(jVec)
-
-	res = (numpy.linalg.norm(a-b))
-	return res
 
 if __name__ == "__main__":
 	main()
