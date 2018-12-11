@@ -9,9 +9,6 @@ pr.enable()
 
 def main():
 
-	# print(5 ** 5)
-	# return
-
 	print("Welcome to Maaz Mohamedy's Feature Selection Algorithm.")
 	file  = 1#input("Type in the name of the file to test (1 for CS170_SMALLtestdata__60, "
 		#+ "2 for CS170_LARGEtestdata__60: ")
