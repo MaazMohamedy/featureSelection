@@ -1,6 +1,7 @@
 import numpy
 import cProfile, pstats, io
 import time
+import random# as randint
 import profile
 import csv
 
@@ -33,18 +34,65 @@ def main():
 	# 		res = leave_one_out_cross_validation(arr)#data,arr)
 	# 		print(res)
 
-	if (algo == "1"): forwardSelection(data)
+	# if (algo == "1"): forwardSelection(data)
+
+	backwardElimination(data)
 
 	pr.disable()
 	pr.print_stats()#end def main
 
+
+def backwardElimination(data):
+	print()
+	numFeatures = len(data[0])
+	current_set_of_features = []
+	mostAccurate = 0
+	for i in range(1,numFeatures): current_set_of_features.append(i)
+	mostAccurateSet = []
+
+	best_so_far_accuracy = leave_one_out_cross_validation(data, current_set_of_features)
+
+	print("Beginning search.\n")
+
+	for i in range(1, numFeatures):
+		best_so_far_accuracy = 0
+		testSet = []
+		bestSet = []
+		for j in range(1, len(current_set_of_features)+1):
+			testSet = current_set_of_features[:]
+			testSet.remove(current_set_of_features[j-1])
+			accuracy = leave_one_out_cross_validation(data, testSet)
+
+			print("\tUsing feature(s) {", end = "") 
+			print(*(testSet), sep = ",", end = "" )
+			print("} accuracy is " + str(accuracy) + "%")
+
+			if (accuracy > best_so_far_accuracy):
+				best_so_far_accuracy = accuracy
+				bestSet = testSet[:]
+
+		current_set_of_features = bestSet[:]
+
+		if (best_so_far_accuracy > mostAccurate):
+			mostAccurate = best_so_far_accuracy
+			mostAccurateSet = current_set_of_features
+
+
+		print("\nFeature set {", end="")
+		print(*(bestSet), sep = ",", end = "")
+		print("} was best, accuracy is " + str(best_so_far_accuracy) + "%\n")
+
+	print("mostAccurate " + str(mostAccurate))
+	print("mostAccurateSet " + str(mostAccurateSet))
+
+	return
 
 def forwardSelection(data):
 	print()
 	current_set_of_features = []
 	current_set_of_features.append([])
 
-	numFeatures = len(data[0])#len(data.columns)
+	numFeatures = len(data[0])
 	mostAccurate = 0
 	mostAccurateSet = []
 
