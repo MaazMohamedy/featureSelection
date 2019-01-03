@@ -6,7 +6,6 @@ import copy
 pr = cProfile.Profile()
 
 def main():
-
 	print("Welcome to Maaz Mohamedy's Feature Selection Algorithm.")
 	file  = input("Type in the name of the file to test:  ") # (1 for CS170_SMALLtestdata__60.txt, " #+ "2 for CS170_LARGEtestdata__96: ")
 
