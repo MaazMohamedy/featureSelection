@@ -1,12 +1,8 @@
 import numpy
 import cProfile, pstats, io
-import time
-import heapq
 import random
 import profile
-import csv
 import copy
-
 pr = cProfile.Profile()
 
 def main():
@@ -153,7 +149,7 @@ def backwardElimination(data):
 	for i in range(1,numFeatures): current_set_of_features.append(i)
 	mostAccurateSet = []
 
-	best_so_far_accuracy = leave_one_out_cross_validation(data, current_set_of_features)
+	best_so_far_accuracy = leave_one_out_cross_validation(data, current_set_of_features,0, False)
 
 	print("Beginning search.\n")
 
@@ -212,6 +208,7 @@ def leave_one_out_cross_validation(data, testSet, best_so_far_accuracy,speedUp):
 					b = data[j][testSet[k]]
 					x = a-b
 					distance += x*x
+					# distance =5
 
 				if (distance <= minDistance):
 					nearest = data[j][0]#data.iat[j,0]
